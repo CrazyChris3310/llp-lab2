@@ -1,0 +1,6 @@
+.vscode
+a.out
+input
+parser.c
+parser.h
+lexer.c
