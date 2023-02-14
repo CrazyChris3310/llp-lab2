@@ -1,6 +1,8 @@
 .PHONY: build
 
+CPPFLAGS = -pedantic-errors -Wall -Werror -g3 -O0 --sanitize=address,undefined,leak
+
 build:
-	bison -d parser.y -o parser.c
+	bison -t -d parser.y -o parser.c
 	flex -o lexer.c lexer.l
-	g++ lexer.c parser.c
+	g++ $(CPPFLAGS) lexer.c parser.c ast.cpp

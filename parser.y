@@ -11,99 +11,119 @@ void yyerror(const char *s){
   std::cerr << yylineno << ": error: " << s << std::endl;
 }
 
+
+int temp = 0;
+
 %}
 
 %define parse.error verbose
 
 %union {
   const char* str;
+  float floatVal;
+  int intVal;
+  bool boolVal;
+
+  LogicalOp logicOp;
+  ConstantOperation compOp;
+
   Node* node;
+  Predicate* predicate;
+  TerminalAction* terminal;
+  ActionNode* action;
+  Constant* constant;
 }
 
+%token<str> ID
+%token<str> STRING_TOKEN
+%token<boolVal> BOOL_TOKEN
+%token<intVal> INT_TOKEN
+%token<floatVal> FLOAT_TOKEN
 %token FOR
 %token IN
 %token FILTER
 %token RETURN
 %token INSERT
 %token INTO
-%token ID
-%token VALUE
 %token LPAREN
 %token RPAREN
 %token COLON
 %token LBRACE
 %token RBRACE
-%token LOGIC_OP
-%token COMP_OP
+%token<logicOp> LOGIC_OP
+%token<compOp> COMP_OP
+%token COMMA
+%token UPDATE
+%token WITH
+%token REMOVE
 
-%type<str> ID VALUE LOGIC_OP COMP_OP
-%type<node> id value for_stmt select_stmt action conditions condition return_val return_stmt map map_items map_item insert_stmt
+%type<node> for_stmt action return_val map map_items map_item insert_stmt filter_stmt
+%type<terminal> terminal_stmt return_stmt update_stmt remove_stmt
+%type<predicate> conditions condition
+%type<action> actions
+%type<constant> constant id value
 
 %%
 
-query: select_stmt  { $1->print(0); delete $1; }
+query: for_stmt  { $1->print(0); delete $1; }
       | insert_stmt { $1->print(0); delete $1; }
-select_stmt: for_stmt action { $$ = new Node("SELECT", "");
-    std::cout << "select" << std::endl;
-                                $$->appendChild($1);
-                                $$->appendChild($2); }
-for_stmt: FOR id IN id {
-                          $$ = new Node("FOR", "");
-                          $$->appendChild($2);
-                          $$->appendChild($4);
-                        }
 
-action: FILTER conditions return_stmt {
-                                        $$ = new Node("ACTION", "");
-                                        Node* filter = new Node("FILTER", "");
-                                        filter->appendChild($2);
-                                        $$->appendChild(filter);
-                                        $$->appendChild($3);
-                                    }
+for_stmt: FOR ID IN ID actions { $$ = new ForNode($2, $4, $5); }
+
+actions: actions action { $$ = $1; $1->addAction($2); } 
+        | action { $$ = new ActionNode(); $$->addAction($1); }
+
+action: for_stmt { $$ = $1; } 
+      | filter_stmt { $$ = $1; }
+      | terminal_stmt  { $$ = $1; }
+
+terminal_stmt: return_stmt { $$ = $1; }
+              | update_stmt { $$ = $1; }
+              | remove_stmt { $$ = $1; }
+
+filter_stmt: FILTER conditions { $$ = new FilterNode($2); }
 
 
 conditions: condition                      { $$ = $1; }
-          | condition LOGIC_OP conditions {
-                                          $$ = new Node($2, "");
-                                          $$->appendChild($1);
-                                          $$->appendChild($3);
-                                        }
-condition: id COMP_OP value {
-                                        $$ = new Node($2, "");
-                                        $$->appendChild($1);
-                                        $$->appendChild($3);
+          | conditions LOGIC_OP conditions { $$ = new ConditionUnion($2, $1, $3); }
+
+condition: constant COMP_OP constant {
+                                        $$ = new Condition($1, $3, $2);
                                         }
 
+constant: id | value  { $$ = $1; }
 
-return_stmt: RETURN return_val { $$ = new Node("RETURN", "");
-                            $$->appendChild($2);}
-return_val: id
-          | value
+
+return_stmt: RETURN return_val { $$ = new ReturnAction($2); }
+
+return_val: constant  { $$ = $1; }
           | map { $$ = $1; }
 
-map: LBRACE map_items RBRACE { $$ = new Node("MAP", "");
-                            $$->appendChild($2); }
-    | LBRACE RBRACE { $$ = new Node("MAP", ""); }
+update_stmt: UPDATE ID WITH map IN ID { $$ = new UpdateAction($2, (MapNode*)$4, $6); }
 
-map_items: map_item          { $$ = $1; }
-          | map_item map_items { $2->appendChild($1); $$ = $2; }
+remove_stmt: REMOVE ID IN ID { $$ = new RemoveAction($2, $4); }
 
-map_item: id COLON value {
-                            $$ = new Node("map_item", "");
-                            $$->appendChild($1);
-                            $$->appendChild($3);
-}
+map: LBRACE map_items RBRACE { $$ = $2; }
+    | LBRACE RBRACE { $$ = new MapNode(); }
 
-id: ID { $$ = new Node("ID", $1); }
-value: VALUE { $$ = new Node("VALUE", $1); }
+map_items: map_item          { MapNode* node = new MapNode(); node->addEntry((MapEntry*)$1); $$ = node; }
+          | map_item COMMA map_items { ((MapNode*)$3)->addEntry((MapEntry*)$1); $$ = $3; }
 
-insert_stmt: INSERT map INTO id { $$ = new Node("INSERT", "");
-                                $$->appendChild($2);
-                                $$->appendChild($4); }
+map_item: STRING_TOKEN COLON value { $$ = new MapEntry($1, $3); }
+
+id: ID { $$ = new Constant($1, true); }
+
+value: INT_TOKEN { $$ = new Constant($1); }
+      | FLOAT_TOKEN { $$ = new Constant($1); }
+      | STRING_TOKEN { $$ = new Constant($1); }
+      | BOOL_TOKEN { $$ = new Constant($1); }
+
+insert_stmt: INSERT map INTO ID { $$ = new InsertNode((MapNode*)$2, $4); }
 
 %%
 
 int main() {
+    // yydebug = 1;
   yyparse();
   return 0;
 }
