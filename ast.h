@@ -10,6 +10,11 @@ class Node {
     virtual ~Node() {};
 };
 
+
+struct NodeWrapper {
+    Node* node;
+};
+
 void printKeyVal(const char* key, const char* val, int depth);
 
 class ForNode : public Node {

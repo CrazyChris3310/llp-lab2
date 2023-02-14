@@ -5,7 +5,7 @@
 
 extern int yylex();
 
-void yyerror(const char *s){
+void yyerror(NodeWrapper& node, const char *s){
   extern int yylineno;
   std::cerr << yylineno << ": error: " << s << std::endl;
 }
@@ -16,6 +16,8 @@ int temp = 0;
 %}
 
 %define parse.error verbose
+
+%parse-param { NodeWrapper& root }
 
 %union {
   const char* str;
@@ -64,8 +66,8 @@ int temp = 0;
 
 %%
 
-query: for_stmt  { $1->print(0); delete $1; }
-      | insert_stmt { $1->print(0); delete $1; }
+query: for_stmt  { root.node = $1;  }
+      | insert_stmt { root.node = $1; }
 
 for_stmt: FOR ID IN ID actions { $$ = new ForNode($2, $4, $5); }
 
@@ -108,7 +110,7 @@ map: LBRACE map_items RBRACE { $$ = $2; }
 map_items: map_item          { MapNode* node = new MapNode(); node->addEntry((MapEntry*)$1); $$ = node; }
           | map_item COMMA map_items { ((MapNode*)$3)->addEntry((MapEntry*)$1); $$ = $3; }
 
-map_item: STRING_TOKEN COLON value { $$ = new MapEntry($1, $3); }
+map_item: STRING_TOKEN COLON constant { $$ = new MapEntry($1, $3); }
 
 id: ID { $$ = new Constant($1, true); }
 
@@ -120,9 +122,3 @@ value: INT_TOKEN { $$ = new Constant($1); }
 insert_stmt: INSERT map INTO ID { $$ = new InsertNode((MapNode*)$2, $4); }
 
 %%
-
-int main() {
-    // yydebug = 1;
-  yyparse();
-  return 0;
-}

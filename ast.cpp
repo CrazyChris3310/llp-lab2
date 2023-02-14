@@ -234,7 +234,7 @@ RemoveAction::RemoveAction(const char* variable, const char* table) {
 }
 
 void RemoveAction::print(int depth) {
-    printKeyVal("name", "update", depth);
+    printKeyVal("name", "remove", depth);
     printKeyVal("variable", this->variable, depth + 1);
     printKeyVal("table", this->table, depth + 1);
 }
