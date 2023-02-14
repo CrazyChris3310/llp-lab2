@@ -2,7 +2,7 @@
 #include <iostream>
 #include <string>
 #include <cstdlib>
-#include "ast.hpp"
+#include "ast.h"
 #include "parser.h"
 %}
 

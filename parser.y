@@ -1,8 +1,7 @@
 %{
 #include <iostream>
-#include <string>
 #include <list>
-#include "ast.hpp"
+#include "ast.h"
 
 extern int yylex();
 
