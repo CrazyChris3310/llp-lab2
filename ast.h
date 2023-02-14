@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <list>
-#include <string>
 
 class Node {
    public:
@@ -11,16 +10,16 @@ class Node {
     virtual ~Node() {};
 };
 
-void printKeyVal(std::string key, std::string val, int depth);
+void printKeyVal(const char* key, const char* val, int depth);
 
 class ForNode : public Node {
    private:
-    std::string variable;
-    std::string tableName;
+    const char* variable;
+    const char* tableName;
     Node* action;
 
    public:
-    ForNode(std::string variable, std::string tableName, Node* action);
+    ForNode(const char* variable, const char* tableName, Node* action);
     void print(int depth) override;
     ~ForNode();
 };
@@ -51,7 +50,7 @@ private:
 public:
     Constant(int val);
     Constant(float val);
-    Constant(const std::string& val, bool isRef);
+    Constant(const char* val, bool isRef);
     Constant(bool val);
     std::string getStrVal();
     std::string getStrType();
@@ -74,7 +73,7 @@ class Condition : public Predicate {
         Constant* rval;
         ConstantOperation op;
 
-        std::string operation_str[7] = { "==", "!=", ">", "<", ">=", "<=", "like" };
+        const char* operation_str[7] = { "==", "!=", ">", "<", ">=", "<=", "like" };
     public:   
         Condition(Constant* lval, Constant* rval, ConstantOperation op);
         void print(int depth) override;
@@ -87,7 +86,7 @@ class ConditionUnion : public Predicate {
         Predicate* lval;
         Predicate* rval;
 
-        std::string getStrOperator();
+        const char* getStrOperator();
     public:
         ConditionUnion(LogicalOp op, Predicate* lval, Predicate* rval);
         void print(int depth) override;
@@ -119,10 +118,10 @@ class ReturnAction : public TerminalAction {
 
 class MapEntry : public Node {
     private:
-        std::string key;
+        const char* key;
         Constant* value;
     public:
-        MapEntry(std::string key, Constant* value);
+        MapEntry(const char* key, Constant* value);
         void print(int depth) override;
         ~MapEntry();
 };
@@ -138,31 +137,31 @@ class MapNode : public Node {
 
 class UpdateAction : public TerminalAction {
     private:
-        std::string variable;
+        const char* variable;
         MapNode* value;
-        std::string table;
+        const char* table;
     public:
-        UpdateAction(std::string variable, MapNode* value, std::string table);
+        UpdateAction(const char* variable, MapNode* value, const char* table);
         void print(int depth) override;
         ~UpdateAction();
 };
 
 class RemoveAction : public TerminalAction {
     private:
-        std::string variable;
-        std::string table;
+        const char* variable;
+        const char* table;
     public:
-        RemoveAction(std::string variable, std::string table);
+        RemoveAction(const char* variable, const char* table);
         void print(int depth) override;
-        ~RemoveAction() {};
+        ~RemoveAction();
 };
 
 class InsertNode : public Node {
     private:
         MapNode* map;
-        std::string table;
+        const char* table;
     public:
-        InsertNode(MapNode* map, std::string table);
+        InsertNode(MapNode* map, const char* table);
         void print(int depth) override;
         ~InsertNode();
 };

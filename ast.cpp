@@ -1,8 +1,9 @@
-#include <string>
 #include <iostream>
+#include <string>
+#include <stdlib.h>
 #include "ast.h"
 
-void printKeyVal(std::string key, std::string val, int depth) {
+void printKeyVal(const char* key, const char* val, int depth) {
     for (int i = 0; i < depth; i++) {
         std::cout << "  ";
     }
@@ -11,7 +12,7 @@ void printKeyVal(std::string key, std::string val, int depth) {
 
 // ------------------------------------------ ForNode ------------------------------------------
 
-ForNode::ForNode(std::string variable, std::string tableName, Node* action) {
+ForNode::ForNode(const char* variable, const char* tableName, Node* action) {
     this->variable = variable;
     this->tableName = tableName;
     this->action = action;
@@ -29,6 +30,8 @@ void ForNode::print(int depth) {
 
 ForNode::~ForNode() {
     delete this->action;
+    free((void*)this->variable);
+    free((void*)this->tableName);
 }
 
 // ------------------------------------------ ActionNode ------------------------------------------
@@ -62,16 +65,13 @@ Constant::Constant(float val) {
     this->value.floatVal = val;
 }
 
-Constant::Constant(const std::string& val, bool isRef = false) {
+Constant::Constant(const char* val, bool isRef = false) {
     if (isRef) {
         this->type = REF;
     } else {
         this->type = STRING;
     }
-    char* temp = new char[val.length() + 1];
-    val.copy(temp, val.length());
-    temp[val.length()] = '\0';
-    this->value.strVal = temp;
+    this->value.strVal = val;
 }
 
 Constant::Constant(bool val) {
@@ -114,13 +114,13 @@ std::string Constant::getStrType() {
 }
 
 void Constant::print(int depth) {
-    printKeyVal("type", this->getStrType(), depth);
-    printKeyVal("value", this->getStrVal(), depth);
+    printKeyVal("type", this->getStrType().c_str(), depth);
+    printKeyVal("value", this->getStrVal().c_str(), depth);
 }
 
 Constant::~Constant() {
     if (this->type == STRING || this->type == REF) {
-        delete[] this->value.strVal;
+        free((void*)this->value.strVal);
     }
 }
 
@@ -145,7 +145,7 @@ Condition::~Condition() {
 
 // ------------------------------------------ ConditionUnion ------------------------------------------
 
-std::string ConditionUnion::getStrOperator() {
+const char* ConditionUnion::getStrOperator() {
     switch (this->op) {
         case AND:
             return "and";
@@ -207,7 +207,7 @@ ReturnAction::~ReturnAction() {
 
 // ------------------------------------------ UpdateAction ------------------------------------------
 
-UpdateAction::UpdateAction(std::string variable, MapNode* value, std::string table) {
+UpdateAction::UpdateAction(const char* variable, MapNode* value, const char* table) {
     this->variable = variable;  
     this->value = value;
     this->table = table;
@@ -222,11 +222,13 @@ void UpdateAction::print(int depth) {
 
 UpdateAction::~UpdateAction() {
     delete this->value;
+    free((void*)this->variable);
+    free((void*)this->table);
 }
 
 // ------------------------------------------ RemoveAction ------------------------------------------
 
-RemoveAction::RemoveAction(std::string variable, std::string table) {
+RemoveAction::RemoveAction(const char* variable, const char* table) {
     this->variable = variable;
     this->table = table;
 }
@@ -237,9 +239,14 @@ void RemoveAction::print(int depth) {
     printKeyVal("table", this->table, depth + 1);
 }
 
+RemoveAction::~RemoveAction() {
+    free((void*)this->variable);
+    free((void*)this->table);
+}
+
 // ------------------------------------------ MapEntry ------------------------------------------
 
-MapEntry::MapEntry(std::string key, Constant* value) {
+MapEntry::MapEntry(const char* key, Constant* value) {
     this->key = key;
     this->value = value;
 }
@@ -252,6 +259,7 @@ void MapEntry::print(int depth) {
 
 MapEntry::~MapEntry() {
     delete this->value;
+    free((void*)this->key);
 }
 
 // ------------------------------------------ MapNode ------------------------------------------
@@ -276,7 +284,7 @@ MapNode::~MapNode() {
 
 // ------------------------------------------ InsertNode ------------------------------------------
 
-InsertNode::InsertNode(MapNode* map, std::string table) {
+InsertNode::InsertNode(MapNode* map, const char* table) {
     this->map = map;
     this->table = table;
 }
@@ -289,4 +297,5 @@ void InsertNode::print(int depth) {
 
 InsertNode::~InsertNode() {
     delete this->map;
+    free((void*)this->table);
 }
