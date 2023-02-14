@@ -11,6 +11,6 @@
 - [x] Create lexer 
 - [x] Create Bison parser
 - [x] Implement wrapper to read and feed strings to parser
-- [] Make normal output (node types, etc)
-- [] Write tests
-- [] Optional: change ouput to JSON or yml
+- [ ] Make normal output (node types, etc)
+- [ ] Write tests
+- [ ] Optional: change ouput to JSON or yml
