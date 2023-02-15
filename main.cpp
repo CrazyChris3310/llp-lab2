@@ -27,6 +27,7 @@ int main() {
                 std::cout << "ret_code: " << code << std::endl;
             } else {
                 nodeWrapper.node->print(0);
+                delete nodeWrapper.node;
             }
             buf.clear();
             std::cout << "> ";

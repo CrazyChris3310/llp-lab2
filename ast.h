@@ -4,10 +4,18 @@
 #include <iostream>
 #include <list>
 
+enum NodeType { FOR_NODE, ACTION_NODE, FILTER_NODE, RETURN_NODE, UPDATE_NODE, REMOVE_NODE, INSERT_NODE,
+                MAP_NODE, MAP_ENTRY_NODE, CONDITION_NODE, CONDITION_UNION_NODE, CONSTANT_NODE };
+
 class Node {
-   public:
-    virtual void print(int depth) = 0;
-    virtual ~Node() {};
+    protected:
+        NodeType nodeType;
+    public:
+        virtual void print(int depth) = 0;
+        virtual ~Node() {};
+        NodeType getNodeType() {
+            return this->nodeType;
+        }
 };
 
 
@@ -34,7 +42,7 @@ class ActionNode : public Node {
     std::list<Node*> actions;
 
    public:
-    ActionNode() {}
+    ActionNode() { this->nodeType = ACTION_NODE; }
     void addAction(Node* action);
     void print(int depth) override;
     ~ActionNode();
@@ -135,6 +143,7 @@ class MapNode : public Node {
     private:
         std::list<MapEntry*> entries;
     public:
+        MapNode() { this->nodeType = MAP_NODE; }
         void addEntry(MapEntry* entry);
         void print(int depth) override;
         ~MapNode();
