@@ -12,7 +12,6 @@ int parseInput(std::string& query, NodeWrapper& nodeWrapper) {
 }
 
 int main() {
-    // std::string query = "FOR x IN data FILTER x > 0 && x < 12 RETURN { \"name\": 5 }";
 
     std::string buf;
     std::string line;
