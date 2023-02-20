@@ -5,7 +5,8 @@
 #include <list>
 
 enum NodeType { FOR_NODE, ACTION_NODE, FILTER_NODE, RETURN_NODE, UPDATE_NODE, REMOVE_NODE, INSERT_NODE,
-                MAP_NODE, MAP_ENTRY_NODE, CONDITION_NODE, CONDITION_UNION_NODE, CONSTANT_NODE };
+                MAP_NODE, MAP_ENTRY_NODE, CONDITION_NODE, CONDITION_UNION_NODE, CONSTANT_NODE,
+                CREATE_TABLE_NODE, DROP_TABLE_NODE };
 
 class Node {
     protected:
@@ -178,6 +179,25 @@ class InsertNode : public Node {
         InsertNode(MapNode* map, const char* table);
         void print(int depth) override;
         ~InsertNode();
+};
+
+class CreateTableNode : public Node {
+    private:
+        const char* table;
+        MapNode* fields;
+    public:
+        CreateTableNode(const char* table, MapNode* fields);
+        void print(int depth) override;
+        ~CreateTableNode();
+};
+
+class DropTableNode : public Node {
+    private:
+        const char* table;
+    public:
+        DropTableNode(const char* table);
+        void print(int depth) override;
+        ~DropTableNode();
 };
 
 #endif

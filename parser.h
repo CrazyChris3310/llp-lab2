@@ -75,7 +75,10 @@ extern int yydebug;
     COMMA = 276,                   /* COMMA  */
     UPDATE = 277,                  /* UPDATE  */
     WITH = 278,                    /* WITH  */
-    REMOVE = 279                   /* REMOVE  */
+    REMOVE = 279,                  /* REMOVE  */
+    CREATE = 280,                  /* CREATE  */
+    DROP = 281,                    /* DROP  */
+    TABLE = 282                    /* TABLE  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -100,7 +103,7 @@ union YYSTYPE
   ActionNode* action;
   Constant* constant;
 
-#line 104 "parser.h"
+#line 107 "parser.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

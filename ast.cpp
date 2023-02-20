@@ -36,6 +36,10 @@ const char* getStringNodeType(NodeType type) {
             return "condition_union";
         case CONSTANT_NODE: 
             return "constant";
+        case CREATE_TABLE_NODE:
+            return "create_table";
+        case DROP_TABLE_NODE:
+            return "drop_table";
         default:
             return "unknown";
     }
@@ -342,10 +346,47 @@ InsertNode::InsertNode(MapNode* map, const char* table) {
 void InsertNode::print(int depth) {
     printKeyVal("node_type", getStringNodeType(getNodeType()), depth);
     printKeyVal("table", this->table, depth );
+    printKeyVal("values", "", depth);
     this->map->print(depth + 1);
 }
 
 InsertNode::~InsertNode() {
     delete this->map;
+    free((void*)this->table);
+}
+
+// ------------------------------------------ CreateTableNode ------------------------------------------
+
+CreateTableNode::CreateTableNode(const char* table, MapNode* fields) {
+    this->fields = fields;
+    this->table = table;
+    this->nodeType = CREATE_TABLE_NODE;
+}
+
+void CreateTableNode::print(int depth) {
+    printKeyVal("node_type", getStringNodeType(getNodeType()), depth);
+    printKeyVal("table", this->table, depth);
+    printKeyVal("fields", "", depth);
+    this->fields->print(depth + 1);
+}
+
+CreateTableNode::~CreateTableNode() {
+    delete this->fields;
+    free((void*)this->table);
+}
+
+// ------------------------------------------ DropTableNode ------------------------------------------
+
+DropTableNode::DropTableNode(const char* table) {
+    this->table = table;
+    this->nodeType = DROP_TABLE_NODE;
+}
+
+void DropTableNode::print(int depth) {
+    printKeyVal("node_type", getStringNodeType(getNodeType()), depth);
+    printKeyVal("table", this->table, depth);
+}
+
+DropTableNode::~DropTableNode() {
     free((void*)this->table);
 }

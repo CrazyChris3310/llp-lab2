@@ -281,3 +281,41 @@ table: data
         type: bool
         value: true
 ```
+
+Create:
+```console
+> CREATE TABLE data { "id": int, "name": string, "salary": float };
+node_type: create_table
+table: data
+fields: 
+  node_type: map
+  entries: 
+    entry: 
+      node_type: map_entry
+      key: "salary"
+      value: 
+        node_type: constant
+        type: reference
+        value: float
+    entry: 
+      node_type: map_entry
+      key: "name"
+      value: 
+        node_type: constant
+        type: reference
+        value: string
+    entry: 
+      node_type: map_entry
+      key: "id"
+      value: 
+        node_type: constant
+        type: reference
+        value: int
+```
+
+Drop:
+```console
+> DROP TABLE data;
+node_type: drop_table
+table: data
+```

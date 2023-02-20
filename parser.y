@@ -57,8 +57,11 @@ int temp = 0;
 %token UPDATE
 %token WITH
 %token REMOVE
+%token CREATE
+%token DROP
+%token TABLE
 
-%type<node> for_stmt action return_val map map_items map_item insert_stmt filter_stmt
+%type<node> for_stmt action return_val map map_items map_item insert_stmt filter_stmt create_stmt drop_stmt
 %type<terminal> terminal_stmt return_stmt update_stmt remove_stmt
 %type<predicate> conditions condition
 %type<action> actions
@@ -68,6 +71,8 @@ int temp = 0;
 
 query: for_stmt  { root.node = $1;  }
       | insert_stmt { root.node = $1; }
+      | create_stmt { root.node = $1; }
+      | drop_stmt { root.node = $1; }
 
 for_stmt: FOR ID IN ID actions { $$ = new ForNode($2, $4, $5); }
 
@@ -120,5 +125,9 @@ value: INT_TOKEN { $$ = new Constant($1); }
       | BOOL_TOKEN { $$ = new Constant($1); }
 
 insert_stmt: INSERT map INTO ID { $$ = new InsertNode((MapNode*)$2, $4); }
+
+create_stmt: CREATE TABLE ID map { $$ = new CreateTableNode($3, (MapNode*)$4); };
+
+drop_stmt: DROP TABLE ID { $$ = new DropTableNode($3); }
 
 %%

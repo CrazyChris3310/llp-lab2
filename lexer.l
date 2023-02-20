@@ -10,6 +10,9 @@
 
 %%
 
+"CREATE"          { return CREATE; }
+"DROP"            { return DROP; }
+"TABLE"           { return TABLE; }
 "FOR"             { return FOR; }
 "IN"              { return IN; }
 "FILTER"          { return FILTER; }
