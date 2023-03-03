@@ -51,26 +51,71 @@ class ActionNode : public Node {
 
 enum DataType { INT, FLOAT, STRING, BOOL, REF };
 
-class Constant :public Node {
+class Constant : public Node {
 private:
     DataType type;
-    union {
-        int intVal;
-        float floatVal;
-        const char* strVal;
-        bool boolVal;
-    } value;
 
 public:
-    Constant(int val);
-    Constant(float val);
-    Constant(const char* val, bool isRef);
-    Constant(bool val);
-    std::string getStrVal();
+    Constant(DataType type) {
+        this->type = type;
+        this->nodeType = CONSTANT_NODE;
+    }
+    virtual std::string getStrVal() { return ""; };
     std::string getStrType();
     void print(int depth) override ;
-    ~Constant();
 };
+
+class FloatConstant : public Constant {
+private:
+    float value;
+public:
+    FloatConstant(float value): Constant(FLOAT) {
+        this->value = value;
+    }
+    std::string getStrVal() override {
+        return std::to_string(this->value);
+    }
+};
+
+class IntConstant : public Constant {
+private:
+    int value;
+public:
+    IntConstant(int value): Constant(INT) {
+        this->value = value;
+    }
+    std::string getStrVal() override {
+        return std::to_string(this->value);
+    }
+};
+
+class BoolConstant : public Constant {
+private:
+    bool value;
+public:
+    BoolConstant(bool value): Constant(BOOL) {
+        this->value = value;
+    }
+    std::string getStrVal() override {
+        return this->value ? "true" : "false";
+    }
+};
+
+class StringConstant : public Constant {
+private:
+    const char* value;
+public:
+    StringConstant(const char* value, bool isRef = false): Constant(isRef ? REF : STRING) {
+        this->value = value;
+    }
+    std::string getStrVal() override {
+        return this->value;
+    }
+    ~StringConstant() {
+        free((void*)value);
+    }
+};
+
 
 enum LogicalOp { AND, OR };
 

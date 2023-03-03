@@ -91,51 +91,6 @@ ActionNode::~ActionNode() {
 
 // ------------------------------------------ Constant ------------------------------------------
 
-Constant::Constant(int val) {
-    this->type = INT;
-    this->value.intVal = val;
-    this->nodeType = CONSTANT_NODE;
-}
-
-Constant::Constant(float val) {
-    this->type = FLOAT;
-    this->value.floatVal = val;
-    this->nodeType = CONSTANT_NODE;
-}
-
-Constant::Constant(const char* val, bool isRef = false) {
-    if (isRef) {
-        this->type = REF;
-    } else {
-        this->type = STRING;
-    }
-    this->value.strVal = val;
-    this->nodeType = CONSTANT_NODE;
-}
-
-Constant::Constant(bool val) {
-    this->type = BOOL;
-    this->value.boolVal = val;
-    this->nodeType = CONSTANT_NODE;
-}
-
-std::string Constant::getStrVal() {
-    switch (this->type) {
-        case INT:
-            return std::to_string(this->value.intVal);
-        case FLOAT:
-            return std::to_string(this->value.floatVal);
-        case STRING:
-            return this->value.strVal;
-        case BOOL:
-            return this->value.boolVal ? "true" : "false";
-        case REF:
-            return this->value.strVal;
-        default:
-            return "[none]";
-    }
-}
-
 std::string Constant::getStrType() {
     switch (this->type) {
         case INT:
@@ -157,12 +112,6 @@ void Constant::print(int depth) {
     printKeyVal("node_type", getStringNodeType(getNodeType()), depth);
     printKeyVal("type", this->getStrType().c_str(), depth);
     printKeyVal("value", this->getStrVal().c_str(), depth);
-}
-
-Constant::~Constant() {
-    if (this->type == STRING || this->type == REF) {
-        free((void*)this->value.strVal);
-    }
 }
 
 // ------------------------------------------ Condition ------------------------------------------
@@ -246,7 +195,8 @@ ReturnAction::ReturnAction(Node* retVal) {
 
 void ReturnAction::print(int depth) {
     printKeyVal("node_type", getStringNodeType(getNodeType()), depth);
-    this->retVal->print(depth);
+    printKeyVal("return_val", "", depth);
+    this->retVal->print(depth + 1);
 }
 
 ReturnAction::~ReturnAction() {

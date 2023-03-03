@@ -33,8 +33,9 @@ make
 Пример использования:
 
 ```console
-> FOR x IN data 
-        FILTER x.name == "first";
+FOR x IN data 
+        FILTER x.name == "first"
+        RETURN x;
 node_type: for
 variable: x
 table: data
@@ -50,8 +51,14 @@ actions:
         value: x.name
       Right: 
         node_type: constant
-        type: bool
-        value: true
+        type: string
+        value: "first"
+  action: 
+    node_type: return
+    return_val: 
+      node_type: constant
+      type: reference
+      value: x
 ```
 
 ### Аспекты реализации
@@ -103,8 +110,9 @@ enum DataType { INT, FLOAT, STRING, BOOL, REF };
 
 Basic select:
 ```console
-> FOR x IN data 
-        FILTER x.name == "first";
+FOR x IN data 
+        FILTER x.name == "first"
+        RETURN x;
 node_type: for
 variable: x
 table: data
@@ -120,8 +128,14 @@ actions:
         value: x.name
       Right: 
         node_type: constant
-        type: bool
-        value: true
+        type: string
+        value: "first"
+  action: 
+    node_type: return
+    return_val: 
+      node_type: constant
+      type: reference
+      value: x
 ```
 
 Select with join:
@@ -202,8 +216,8 @@ actions:
           value: x.name
         Right: 
           node_type: constant
-          type: bool
-          value: true
+          type: string
+          value: "Ste"
       Right: 
         node_type: condition
         Operation: <
@@ -217,9 +231,10 @@ actions:
           value: 21
   action: 
     node_type: return
-    node_type: constant
-    type: reference
-    value: x
+    return_val: 
+      node_type: constant
+      type: reference
+      value: x
 ```
 
 Update:
@@ -241,8 +256,8 @@ actions:
           key: "name"
           value: 
             node_type: constant
-            type: bool
-            value: tru
+            type: string
+            value: "Abuba"
 ```
 
 Delete:
@@ -261,9 +276,10 @@ actions:
 
 Insert:
 ```console
-INSERT { "name": "ASDF", "age": 23 } INTO data;
+> INSERT { "name": "ASDF", "age": 23 } INTO data;
 node_type: insert
 table: data
+values: 
   node_type: map
   entries: 
     entry: 
@@ -278,8 +294,8 @@ table: data
       key: "name"
       value: 
         node_type: constant
-        type: bool
-        value: true
+        type: string
+        value: "ASDF"
 ```
 
 Create:

@@ -67,6 +67,13 @@ int temp = 0;
 %type<action> actions
 %type<constant> constant id value
 
+%left LOGIC_OP
+%left COMP_OP
+%left IN
+%left WITH
+%left INTO
+%left RETURN
+
 %%
 
 query: for_stmt  { root.node = $1;  }
@@ -117,12 +124,12 @@ map_items: map_item          { MapNode* node = new MapNode(); node->addEntry((Ma
 
 map_item: STRING_TOKEN COLON constant { $$ = new MapEntry($1, $3); }
 
-id: ID { $$ = new Constant($1, true); }
+id: ID { $$ = new StringConstant($1, true); }
 
-value: INT_TOKEN { $$ = new Constant($1); }
-      | FLOAT_TOKEN { $$ = new Constant($1); }
-      | STRING_TOKEN { $$ = new Constant($1); }
-      | BOOL_TOKEN { $$ = new Constant($1); }
+value: INT_TOKEN { $$ = new IntConstant($1);}
+      | FLOAT_TOKEN { $$ = new FloatConstant($1);}
+      | STRING_TOKEN { $$ = new StringConstant($1);}
+      | BOOL_TOKEN { $$ = new BoolConstant($1);}
 
 insert_stmt: INSERT map INTO ID { $$ = new InsertNode((MapNode*)$2, $4); }
 
